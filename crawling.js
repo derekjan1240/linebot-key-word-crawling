@@ -1,8 +1,7 @@
-module.exports = function (url, Cookie) {
+module.exports = function (url, Cookie, resolve) {
 
   const request = require("request");
   const cheerio = require('cheerio');
-  console.log('url',url);
 
   var options = { 
       method: 'GET',
@@ -17,16 +16,20 @@ module.exports = function (url, Cookie) {
 
       //開始分析
       const $ = cheerio.load(body) 
-      let title = [];
+      let title = [], result = [];
 
       $('.r-ent .title').each(function(i, elem) {
           title.push($(this).text().split('\n'))
       })  
 
+
       for(j =0;j<title.length;j++){
-        let result = title[j][2].toString().replace(/\s+/g, "");
-        console.log( result + '\n');
+        result[j] = title[j][2].toString().replace(/\s+/g, "");
       }
+
+       //console.log('result', result);
+
+       resolve(result); // Yay！非常順利！
 
     });
 

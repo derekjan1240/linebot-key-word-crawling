@@ -9,13 +9,38 @@
         
         <div class="container" style="width: 80%; padding-top: 50px; ">
           <h3>LineBot Crawling</h3>
-          
-          <img height="80px" src="http://qr-official.line.me/L/4rpodDwRKE.png">
+
+          <div id ='crawlingContent'>
+            <!-- crawling result-->
+          </div>
           
 
-          <a href="https://line.me/R/ti/p/%40fuz8387e"><img height="36" border="0" alt="加入好友" src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png"></a>
+          <br>
+          <img height="80px" src="http://qr-official.line.me/L/4rpodDwRKE.png">
           
+          <a href="https://line.me/R/ti/p/%40fuz8387e"><img height="36" border="0" alt="加入好友" src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png"></a>
+
         </div>
         
     </body>
 </html>
+
+<script type="text/javascript">
+  innerResult();
+  function innerResult(){
+
+    let crawlingContent = document.getElementById("crawlingContent");
+    let node, textnode;
+
+    <% for (let i = result.length - 1; i >= 0; i--) { %>
+
+      node = document.createElement("LI");
+      textnode = document.createTextNode('<%= result[i] %>');
+      node.appendChild(textnode);
+      crawlingContent.appendChild(node);
+
+    <% }%>
+  }
+  
+
+</script>

@@ -17,10 +17,14 @@ app.use(express.static('public'));
 
 // create home route
 app.get('/', (req, res) => {
-    console.log('home page')
-    crawling(key.site.url, key.site.cookies);
 
-    res.render('home');
+  let promise = new Promise((resolve, reject) => {
+    //crawling and return result to home page 
+    crawling(key.site.url, key.site.cookies, resolve, reject)
+    
+  }).then((result) => {
+    res.render('home', { result: result });
+  });
 
 });
 
@@ -33,6 +37,7 @@ app.post('/echo', line.middleware(key.lineChannelConfig), (req, res) => {
   Promise
     .all(req.body.events.map(handleEvent))
     .then((result) => {
+      console.log('result: ', result);
       res.json(result);
       console.log('event: ', req.body.events[0]);
     })
