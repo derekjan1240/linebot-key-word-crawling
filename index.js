@@ -1,15 +1,31 @@
 'use strict';
 
 const line = require('@line/bot-sdk');
-const key = require('./config/keys')
+const key = require('./config/keys');
+
+//crawling function
+const crawling = require('./crawling');
+
 const express = require('express');
+
+// create Express app
+const app = express();
+
+// set view engine
+app.set('view engine', 'ejs');
+app.use(express.static('public'));
+
+// create home route
+app.get('/', (req, res) => {
+    console.log('home page')
+    crawling(key.site.url, key.site.cookies);
+
+    res.render('home');
+
+});
 
 // create LINE SDK client
 const client = new line.Client(key.lineChannelConfig);
-
-// create Express app
-// about Express itself: https://expressjs.com/
-const app = express();
 
 // register a webhook handler with middleware
 // about the middleware, please refer to doc
@@ -18,7 +34,7 @@ app.post('/echo', line.middleware(key.lineChannelConfig), (req, res) => {
     .all(req.body.events.map(handleEvent))
     .then((result) => {
       res.json(result);
-      //console.log('req.body: ', req.body.events);
+      console.log('event: ', req.body.events[0]);
     })
     .catch((err) => {
       console.error(err);

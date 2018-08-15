@@ -1,2 +1,5 @@
 # linebot-test
-linebot app with node js 
+## test @line/bot-sdk 
+### About
+2017.8.15  
+
