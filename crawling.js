@@ -22,14 +22,19 @@ module.exports = function (url, Cookie, resolve) {
           title.push($(this).text().split('\n'))
       })  
 
+      console.log('title: ', title)
 
       for(j =0;j<title.length;j++){
-        result[j] = title[j][2].toString().replace(/\s+/g, "");
+        result[j] = title[j][2].toString().replace(/\s+/g, "") + ' \n \n';
       }
 
-       //console.log('result', result);
-
-       resolve(result); // Yay！非常順利！
+       if(result.toString()){
+        console.log(result.toString())
+          return resolve(result);
+       }else{
+          return reject('undefinded!');
+       }
+       
 
     });
 

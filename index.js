@@ -37,9 +37,9 @@ app.post('/echo', line.middleware(key.lineChannelConfig), (req, res) => {
   Promise
     .all(req.body.events.map(handleEvent))
     .then((result) => {
-      console.log('result: ', result);
       res.json(result);
-      console.log('event: ', req.body.events[0]);
+      console.log('ok2');
+      //console.log('event: ', req.body.events[0]);
     })
     .catch((err) => {
       console.error(err);
@@ -47,24 +47,80 @@ app.post('/echo', line.middleware(key.lineChannelConfig), (req, res) => {
     });
 });
 
+
+
 // event handler
 function handleEvent(event) {
+
   if (event.type !== 'message' || event.message.type !== 'text') {
     // ignore non-text-message event
     return Promise.resolve(null);
-  }
 
-  // create a echoing text message
-  let echo = { type: 'text', text: event.message.text };
-  
-  //key word set
-  if(event.message.text === '1'){
-    echo = { type: 'text', text: 'event.message.text' };
+  }else{
+
+    if(event.message.text === 'h' || event.message.text === 'H'){
+      //選項表單
+      let echo = {
+          type: "template",
+          altText: "在不支援顯示樣板的地方顯示的文字",
+          template: {
+            type: "confirm",
+            text: "標題文字",
+            actions: [
+              {
+                type: "message",
+                label: "ptt",
+                text: "ptt"
+              },
+              {
+                type: "message",
+                label: "2",
+                text: "2"
+              }
+            ]
+          }
+        }
+
+      return client.replyMessage(event.replyToken, echo);
+    }
+
+    if(event.message.text === '2'){
+      let echo = { type: 'text', text: 'number \n 2' };
+      return client.replyMessage(event.replyToken, echo);
+    }
+
+    if(event.message.text === '9'){
+
+      let promise = new Promise((resolve, reject) => {
+        //crawling and return result to home page 
+        crawling(key.site.url, key.site.cookies, resolve, reject)
+        
+      }).then((result) => {
+        
+        //send the crawling result to user
+
+        let msg = { type: 'text', text: result.toString().replace(/,/g, "")};
+        return client.replyMessage(event.replyToken, msg);
+
+      }, (reason) => {
+        //send error msg to user
+        let errorMsg = { type: 'text', text: 'crawling error!' };
+        return client.replyMessage(event.replyToken, errorMsg);
+      });
+
+      console.log('waiting');
+      
+    }
+
+    else{
+      //echo
+      // create a echoing text message
+      let echo = { type: 'text', text: event.message.text };
+      //use reply API
+      return client.replyMessage(event.replyToken, echo);
+    }
   }
   
-
-  // use reply API
-  return client.replyMessage(event.replyToken, echo);
 }
 
 // listen on port
