@@ -1,5 +1,4 @@
 # linebot-key-word-crawling
-### About
 2017.8.15 Line 爬蟲機器人<br><br>
 
 <b>專案說明</b><br><br>
