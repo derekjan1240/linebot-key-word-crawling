@@ -4,7 +4,7 @@ module.exports = function (site, resolve, reject) {
   const cheerio = require('cheerio');
   const key = require('./config/keys');
 
-  console.log('site:', site);
+  console.log('Key word:', site);
 
   let siteUrl,
       siteKeyWord,
@@ -25,31 +25,12 @@ module.exports = function (site, resolve, reject) {
     siteKeyWord = '.cont_single .statstoplist_box';
     state = 'CPBL';
 
-  }else if(site === '北部'){
-    siteUrl = key.sites.airpm_North.url;
-    siteKeyWord = '.TABLE_G tbody tr';
-    state = 'AIR';
-
-  }else if(site === '中部'){
-    siteUrl = key.sites.airpm_Central.url;
-    siteKeyWord = '.TABLE_G tbody tr';
-    state = 'AIR';
-
-  }else if(site === '南部'){
-    siteUrl = key.sites.airpm_Southern.url;
-    siteKeyWord = '.TABLE_G tbody tr';
-    state = 'AIR';
-
-  }else if(site === '東部及離島'){
-    siteUrl = key.sites.airpm_East.url;
-    siteKeyWord = '.TABLE_G tbody tr';
-    state = 'AIR';
-
-  }else{
-
   }
-
-  console.log('siteUrl: ',siteUrl)
+  else{
+    siteUrl = key.sites.taqm.url;
+    siteKeyWord = '.TABLE_G tbody tr';
+    state = 'AIR';
+  }
 
   let options = { 
       method: 'GET',
@@ -70,8 +51,11 @@ module.exports = function (site, resolve, reject) {
           title.push($(this).text().split('\n'))
       }) 
       
+      //未整理的資料 title
       //console.log('title: ', title)
       
+
+      //整理資料 
       if(state === 'PTT'){
         for(j =0;j<title.length;j++){
           result.push(title[j][2].toString().replace(/\s+/g, "") + ' \n \n');
@@ -109,30 +93,80 @@ module.exports = function (site, resolve, reject) {
           result.push(title[j][25].toString().replace(/\s+/g, "") + ' ');
           result.push(title[j][26].toString().replace(/\s+/g, "") + ' ');
           result.push(title[j][27].toString().replace(/\s+/g, "") + ' ');
-          result.push(title[j][28].toString().replace(/\s+/g, "") + '\n --------------------------- \n');
+          result.push(title[j][28].toString().replace(/\s+/g, "") + '\n ------------------------------------------------------ \n');
         }
 
+      }else if(state === 'AIR'){
+
+        if(site === '北宜'){
+
+          for(j =1;j<=16;j++){
+            result.push(title[j][2].toString().replace(/\s+/g, "") + ':' + title[j][4].toString().replace(/\s+/g, "") +' \n \n');
+          }
+          for(j =63;j<=66;j++){
+            result.push(title[j][2].toString().replace(/\s+/g, "") + ':' + title[j][4].toString().replace(/\s+/g, "") +' \n \n');
+          }
+          result.push(title[69][2].toString().replace(/\s+/g, "") + ':' + title[69][4].toString().replace(/\s+/g, "") +' \n \n');
+          result.push(title[77][2].toString().replace(/\s+/g, "") + ':' + title[77][4].toString().replace(/\s+/g, "") );
+
+        }else if(site === '桃竹苗'){
+
+          for(j =17;j<=27;j++){
+            result.push(title[j][2].toString().replace(/\s+/g, "") + ':' + title[j][4].toString().replace(/\s+/g, "") +' \n \n');
+          }
+          result.push(title[67][2].toString().replace(/\s+/g, "") + ':' + title[67][4].toString().replace(/\s+/g, "") +' \n \n');
+          result.push(title[68][2].toString().replace(/\s+/g, "") + ':' + title[68][4].toString().replace(/\s+/g, ""));
+
+        }else if(site === '中部'){
+
+          for(j =28;j<=36;j++){
+            result.push(title[j][2].toString().replace(/\s+/g, "") + ':' + title[j][4].toString().replace(/\s+/g, "") +' \n \n');
+          }
+          result.push(title[71][2].toString().replace(/\s+/g, "") + ':' + title[71][4].toString().replace(/\s+/g, ""));
+
+        }else if(site === '雲嘉南'){
+
+          for(j =37;j<=46;j++){
+            result.push(title[j][2].toString().replace(/\s+/g, "") + ':' + title[j][4].toString().replace(/\s+/g, "") +' \n \n');
+          }
+          result.push(title[76][2].toString().replace(/\s+/g, "") + ':' + title[76][4].toString().replace(/\s+/g, ""));
+
+        }else if(site === '高屏'){
+
+          for(j =47;j<=60;j++){
+            result.push(title[j][2].toString().replace(/\s+/g, "") + ':' + title[j][4].toString().replace(/\s+/g, "") +' \n \n');
+          }
+          result.push(title[70][2].toString().replace(/\s+/g, "") + ':' + title[70][4].toString().replace(/\s+/g, ""));
+
+        }else if(site === '東部及離島'){
+
+          result.push(title[61][2].toString().replace(/\s+/g, "") + ':' + title[61][4].toString().replace(/\s+/g, "") +' \n \n');
+          result.push(title[62][2].toString().replace(/\s+/g, "") + ':' + title[62][4].toString().replace(/\s+/g, "") +' \n \n');
+          for(j =72;j<=75;j++){
+            result.push(title[j][2].toString().replace(/\s+/g, "") + ':' + title[j][4].toString().replace(/\s+/g, "") +' \n \n');
+          }
+          result.push(title[78][2].toString().replace(/\s+/g, "") + ':' + title[78][4].toString().replace(/\s+/g, ""));
+
+        }
+
+        
+
+        console.log('result:' , result);
+
+      }else{
+        //None this state
+        return reject('Crawling Target Error!'); 
       }
       
 
-
-      // pm2.5
-      // for(j =1;j<title.length;j++){
-      //   result[j] = title[j][2].toString().replace(/\s+/g, "") + ':' +
-      //   title[j][4].toString().replace(/\s+/g, "") +' \n \n';
-      // }
-
-
-      console.log('result:' , result)
-
+      //回傳結果 result
       if(result.toString()){
         console.log(result.toString())
         return resolve(result);
       }else{
-        return reject('undefinded!');
+        return reject('Undefinded Error!');
       }
        
-
     });
 
 }

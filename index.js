@@ -40,8 +40,6 @@ app.post('/echo', line.middleware(key.lineChannelConfig), (req, res) => {
     });
 });
 
-
-
 // event handler
 function handleEvent(event) {
 
@@ -51,12 +49,13 @@ function handleEvent(event) {
 
   }else{
 
+    //// 選單部分 ---
     // h 功能選單
-    if(event.message.text === 'h' || event.message.text === 'H'){
+    if(event.message.text === 'C' || event.message.text === 'c'){
       //選項表單
-      let echo = {
+      let menu = {
           type: "template",
-          altText: "Input Key word: [Gossip][Baseball][CPBL][北部][中部][南部][東部及離島]",
+          altText: "Input Key word: [Gossip][Baseball][CPBL][北宜][桃竹苗][中部][雲嘉南][高屏][東部及離島]",
           template: {
             type: "buttons",
             text: "選擇查詢目標",
@@ -68,7 +67,7 @@ function handleEvent(event) {
               },
               {
                 type: "message",
-                label: "pm2.5濃度",
+                label: "pm2.5及時濃度",
                 text: "pm2.5"
               },
               {
@@ -81,13 +80,13 @@ function handleEvent(event) {
         }
       
 
-      return client.replyMessage(event.replyToken, echo);
+      return client.replyMessage(event.replyToken, menu);
     }
 
-    // ptt ptt爬蟲選單
-    if(event.message.text === 'ptt'){
+    // ptt >ptt爬蟲選單
+    else if(event.message.text === 'ptt'){
       //選項表單
-      let echo = {
+      let menu = {
           type: "template",
           altText: "在不支援顯示樣板的地方顯示的文字",
           template: {
@@ -108,13 +107,13 @@ function handleEvent(event) {
           }
         }
 
-      return client.replyMessage(event.replyToken, echo);
+      return client.replyMessage(event.replyToken, menu);
     }
 
-    // air pm2.5爬蟲選單
-    if(event.message.text === 'pm2.5'){
+    // air >pm2.5爬蟲選單
+    else if(event.message.text === 'pm2.5'){
       //選項表單
-      let echo = {
+      let menu = {
           type: "template",
           altText: "在不支援顯示樣板的地方顯示的文字",
           template: {
@@ -145,12 +144,63 @@ function handleEvent(event) {
           }
         }
 
-      return client.replyMessage(event.replyToken, echo);
+      return client.replyMessage(event.replyToken, menu);
     }
 
 
-    // 爬蟲 -----------
+    //北部與南部區域多細分選項
+    else if(event.message.text === '北部'){
+      let echo = {
+          type: "template",
+          altText: "在不支援顯示樣板的地方顯示的文字",
+          template: {
+            type: "buttons",
+            text: "量測區域選擇",
+            actions: [
+              {
+                type: "message",
+                label: "北宜",
+                text: "北宜"
+              },
+              {
+                type: "message",
+                label: "桃竹苗",
+                text: "桃竹苗"
+              }
+            ]
+          }
+        }
 
+      return client.replyMessage(event.replyToken, echo);
+    }
+
+    else if(event.message.text === '南部'){
+      let echo = {
+          type: "template",
+          altText: "在不支援顯示樣板的地方顯示的文字",
+          template: {
+            type: "buttons",
+            text: "量測區域選擇",
+            actions: [
+              {
+                type: "message",
+                label: "雲嘉南",
+                text: "雲嘉南"
+              },
+              {
+                type: "message",
+                label: "高屏",
+                text: "高屏"
+              }
+            ]
+          }
+        }
+
+      return client.replyMessage(event.replyToken, echo);
+    }
+
+    //// 爬蟲部分 -- 
+    //ptt爬蟲
     if(event.message.text === 'Gossip' || event.message.text === 'Baseball'){
 
       let promise = new Promise((resolve, reject) => {
@@ -165,11 +215,11 @@ function handleEvent(event) {
       }, (reason) => {
         //erro handling
         //send error msg to user
-        let errorMsg = { type: 'text', text: 'crawling error!' };
+        let errorMsg = { type: 'text', text: reason.toString() };
         return client.replyMessage(event.replyToken, errorMsg);
       });
     }
-
+    //cpbl爬蟲
     else if(event.message.text === 'CPBL'){
       let promise = new Promise((resolve, reject) => {
           //crawling and return result to home page 
@@ -178,25 +228,35 @@ function handleEvent(event) {
       }).then((result) => {
         //send the crawling result to user
         let msg = { type: 'text', text: result.toString().replace(/,/g, "")};
-        console.log('msg:',msg)
         return client.replyMessage(event.replyToken, msg);
 
       }, (reason) => {
         //erro handling
         //send error msg to user
-        let errorMsg = { type: 'text', text: 'crawling error!' };
+        let errorMsg = { type: 'text', text: reason.toString() };
+        return client.replyMessage(event.replyToken, errorMsg);
+      });
+    }
+    //空汙爬蟲
+    else if(event.message.text === '北宜' || event.message.text === '桃竹苗' ||  event.message.text === '中部'  || event.message.text === '雲嘉南' || event.message.text === '高屏' || event.message.text === '東部及離島'){
+      let promise = new Promise((resolve, reject) => {
+          //crawling and return result to home page 
+        crawling(event.message.text, resolve, reject)
+        
+      }).then((result) => {
+        //send the crawling result to user
+        let msg = { type: 'text', text: '空格：通訊異常，ND：未檢出\n (表示數據低於偵測極限 2 微克/立方公尺) \n \n' + result.toString().replace(/,/g, "")};
+        return client.replyMessage(event.replyToken, msg);
+
+      }, (reason) => {
+        //erro handling
+        //send error msg to user
+        let errorMsg = { type: 'text', text: reason.toString() };
         return client.replyMessage(event.replyToken, errorMsg);
       });
     }
 
-    else if(event.message.text === '北部' || event.message.text === '中部' || event.message.text === '南部' || event.message.text === '東部及離島'){
-      handleCrawling(event);
-    }
-
-    
-
-
-    //echo message
+    ////若輸入非 Key word 則 echo message
     else{
       //echo
       // create a echoing text message
@@ -204,26 +264,7 @@ function handleEvent(event) {
       //use reply API
       return client.replyMessage(event.replyToken, echo);
     }
-  }
-  
-}
-
-function handleCrawling(){
-  let promise = new Promise((resolve, reject) => {
-    //crawling and return result to home page 
-    crawling(event.message.text, resolve, reject)
-    
-  }).then((result) => {
-    //send the crawling result to user
-    let msg = { type: 'text', text: result.toString().replace(/,/g, "")};
-    return client.replyMessage(event.replyToken, msg);
-
-  }, (reason) => {
-    //erro handling
-    //send error msg to user
-    let errorMsg = { type: 'text', text: 'crawling error!' };
-    return client.replyMessage(event.replyToken, errorMsg);
-  });
+  } 
 }
 
 // listen on port
@@ -231,3 +272,4 @@ const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`listening on ${port}`);
 });
+
